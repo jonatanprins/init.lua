@@ -1,6 +1,5 @@
 require("vim._core.ui2").enable({ enable = true, msg = { target = "msg" } })
 
-
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.loaded_netrwplugin = 1
@@ -91,13 +90,8 @@ vim.keymap.set("n", "<c-k>", "<c-w><c-k>", { desc = "move focus to the upper win
 
 vim.pack.add({
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
-	{ src = "https://github.com/dasupradyumna/midnight.nvim" },
-	{ src = "https://github.com/stevearc/oil.nvim" },
 	{ src = "https://github.com/stevearc/conform.nvim" },
 	{ src = "https://github.com/mason-org/mason.nvim" },
-	{ src = "https://github.com/whoissethdaniel/mason-tool-installer.nvim" },
-	{ src = "https://github.com/saghen/blink.cmp" },
-	{ src = "https://github.com/saghen/blink.lib" },
 })
 
 do
@@ -544,42 +538,52 @@ end
 -- 	vim.keymap.set("n", "<leader>s/", fzf_lua.grep_curbuf)
 -- end
 
-require("mason").setup()
+do
+	vim.pack.add({
+		{ src = "https://github.com/whoissethdaniel/mason-tool-installer.nvim" },
+		{ src = "https://github.com/mason-org/mason.nvim" },
+		{ src = "https://github.com/saghen/blink.cmp" },
+		{ src = "https://github.com/saghen/blink.lib" },
+	})
+	require("mason").setup()
+	require("blink.cmp").build():wait(60000)
 
-require("blink.cmp").build():wait(60000)
+	local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-local capabilities = require("blink.cmp").get_lsp_capabilities()
+	local servers = {}
 
-local servers = {}
+	local ensure_installed = vim.tbl_keys(servers or {})
+	vim.list_extend(ensure_installed, {
+		"stylua", -- used to format lua code
+	})
 
-local ensure_installed = vim.tbl_keys(servers or {})
-vim.list_extend(ensure_installed, {
-	"stylua", -- used to format lua code
-})
+	require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
+	require("blink.cmp").setup({
+		keymap = {
+			preset = "default",
+		},
 
-require("blink.cmp").setup({
-	keymap = {
-		preset = "default",
-	},
+		completion = {
+			documentation = { auto_show = false, auto_show_delay_ms = 500 },
+		},
 
-	completion = {
-		documentation = { auto_show = false, auto_show_delay_ms = 500 },
-	},
+		sources = {
+			default = { "lsp", "path", "buffer" },
+		},
 
-	sources = {
-		default = { "lsp", "path", "buffer" },
-	},
+		-- snippets = { preset = "luasnip" },
 
-	-- snippets = { preset = "luasnip" },
+		fuzzy = { implementation = "prefer_rust_with_warning" },
 
-	fuzzy = { implementation = "prefer_rust_with_warning" },
+		signature = { enabled = true },
+	})
+end
 
-	signature = { enabled = true },
-})
-
-local function load_oil()
+do
+	vim.pack.add({
+		{ src = "https://github.com/stevearc/oil.nvim" },
+	})
 	require("oil").setup({
 		default_file_explorer = true,
 		delete_to_trash = true,
@@ -597,9 +601,7 @@ local function load_oil()
 	})
 end
 
-load_oil()
-
-local function color_my_pencil()
+do
 	vim.cmd([[
 	      augroup transparentbackground
 	      autocmd!
@@ -608,9 +610,8 @@ local function color_my_pencil()
 	      augroup end
 	    ]])
 
-	vim.cmd([[colorscheme retrobox]])
+	vim.cmd([[colorscheme default]])
 end
-color_my_pencil()
 
 vim.api.nvim_create_autocmd("BufRead", {
 	callback = function(opts)

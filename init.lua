@@ -1,6 +1,5 @@
-require("vim._core.ui2").enable({ enable = true, msg = {
-	target = "msg",
-} })
+require("vim._core.ui2").enable({ enable = true, msg = { target = "msg" } })
+
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -12,7 +11,7 @@ vim.loader.enable = true
 vim.g.have_nerd_font = false
 
 vim.o.number = true
-vim.o.relativenumber = true
+vim.o.relativenumber = false
 
 vim.o.mouse = "a"
 
@@ -25,6 +24,7 @@ end)
 vim.o.breakindent = true
 
 vim.o.undofile = true
+vim.o.swapfile = false
 
 vim.o.ignorecase = true
 vim.o.smartcase = true
@@ -33,7 +33,7 @@ vim.o.signcolumn = "yes"
 
 vim.o.updatetime = 250
 
-vim.o.timeoutlen = 300
+vim.o.timeoutlen = 800
 
 vim.o.splitright = true
 vim.o.splitbelow = true
@@ -49,34 +49,36 @@ vim.opt.expandtab = true
 vim.o.inccommand = "split"
 
 vim.o.cursorline = false
+vim.o.cursorcolumn = false
 
-vim.o.scrolloff = 10
+vim.o.scrolloff = 5
 
 vim.o.confirm = true
 
 vim.keymap.set("n", "<c-f>", "<cmd>silent !tmux neww tmux-sessionizer<cr>")
+vim.keymap.set("n", "ZX", "ZQ")
 vim.keymap.set("n", "<leader>p", function()
-	vim.cmd([[oil]])
+	vim.cmd([[Oil]])
 end)
 vim.keymap.set("n", "<c-d>", "<c-d>zz")
 vim.keymap.set("n", "<c-u>", "<c-u>zz")
 
-vim.keymap.set("n", "<pageup>", "<pageup>m")
-vim.keymap.set("n", "<pagedown>", "<pagedown>m")
+vim.keymap.set("n", "<pageup>", "<c-u>zz")
+vim.keymap.set("n", "<pagedown>", "<c-d>zz")
 
 vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>")
-
-vim.diagnostic.config({
-	update_in_insert = false,
-	severity_sort = false,
-	float = { border = "rounded", source = "if_many" },
-	underline = { severity = vim.diagnostic.severity.error },
-
-	virtual_text = true, -- text shows up at the end of the line
-	virtual_lines = false, -- teest shows up underneath the line, with virtual lines
-
-	jump = { float = true },
-})
+--
+-- vim.diagnostic.config({
+-- 	update_in_insert = false,
+-- 	severity_sort = false,
+-- 	float = { border = "rounded", source = "if_many" },
+-- 	underline = { severity = vim.diagnostic.severity.error },
+--
+-- 	virtual_text = true, -- text shows up at the end of the line
+-- 	virtual_lines = false, -- teest shows up underneath the line, with virtual lines
+--
+-- 	jump = { float = true },
+-- })
 
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "open diagnostic [q]uickfix list" })
 
@@ -89,288 +91,336 @@ vim.keymap.set("n", "<c-k>", "<c-w><c-k>", { desc = "move focus to the upper win
 
 vim.pack.add({
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
-	{ src = "https://github.com/nvim-mini/mini.nvim" },
+	{ src = "https://github.com/dasupradyumna/midnight.nvim" },
 	{ src = "https://github.com/stevearc/oil.nvim" },
 	{ src = "https://github.com/stevearc/conform.nvim" },
-	{ src = "https://codeberg.org/comfysage/artio.nvim" },
 	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/whoissethdaniel/mason-tool-installer.nvim" },
 	{ src = "https://github.com/saghen/blink.cmp" },
-	{ src = "https://github.com/ibhagwan/fzf-lua" },
-	{ src = "https://github.com/folke/flash.nvim" },
-	{ src = "https://github.com/kylechui/nvim-surround" },
+	{ src = "https://github.com/saghen/blink.lib" },
 })
 
---setup artio
--- vim.keymap.set("n", "<leader><leader>", function()
--- 	require("artio.builtins").files({ findprg = "rg --files$*" })
--- end)
+do
+	vim.pack.add({ {
+		src = "https://codeberg.org/comfysage/artio.nvim",
+	} })
 
--- setup flash
-require("flash").setup({
-	-- labels = "abcdefghijklmnopqrstuvwxyz",
-	labels = "asdfghjklqwertyuiopzxcvbnm",
-	search = {
-		-- search/jump in all windows
-		multi_window = true,
-		-- search direction
-		forward = true,
-		-- when `false`, find only matches in the given direction
-		wrap = true,
-		---@type Flash.Pattern.Mode
-		-- Each mode will take ignorecase and smartcase into account.
-		-- * exact: exact match
-		-- * search: regular search
-		-- * fuzzy: fuzzy search
-		-- * fun(str): custom function that returns a pattern
-		--   For example, to only match at the beginning of a word:
-		--   mode = function(str)
-		--     return "\\<" .. str
-		--   end,
-		mode = "exact",
-		-- behave like `incsearch`
-		incremental = false,
-		-- Excluded filetypes and custom window filters
-		---@type (string|fun(win:window))[]
-		exclude = {
-			"notify",
-			"cmp_menu",
-			"noice",
-			"flash_prompt",
-			function(win)
-				-- exclude non-focusable windows
-				return not vim.api.nvim_win_get_config(win).focusable
-			end,
+	require("artio").setup({
+		opts = {
+			preselect = true, -- whether to preselect the first match
+			bottom = true, -- whether to draw the prompt at the bottom
+			shrink = true, -- whether the window should shrink to fit the matches
+			promptprefix = "", -- prefix for the prompt
+			prompt_title = true, -- whether to draw the prompt title
+			pointer = "", -- pointer for the selected match
+			marker = "│", -- prefix for marked items
+			infolist = { "list" }, -- index: [1] list: (4/5)
+			use_icons = false, -- requires mini.icons
 		},
-		-- Optional trigger character that needs to be typed before
-		-- a jump label can be used. It's NOT recommended to set this,
-		-- unless you know what you're doing
-		trigger = "",
-		-- max pattern length. If the pattern length is equal to this
-		-- labels will no longer be skipped. When it exceeds this length
-		-- it will either end in a jump or terminate the search
-		max_length = false, ---@type number|false
-	},
-	jump = {
-		-- save location in the jumplist
-		jumplist = true,
-		-- jump position
-		pos = "start", ---@type "start" | "end" | "range"
-		-- add pattern to search history
-		history = false,
-		-- add pattern to search register
-		register = false,
-		-- clear highlight after jump
-		nohlsearch = false,
-		-- automatically jump when there is only one match
-		autojump = false,
-		-- You can force inclusive/exclusive jumps by setting the
-		-- `inclusive` option. By default it will be automatically
-		-- set based on the mode.
-		inclusive = nil, ---@type boolean?
-		-- jump position offset. Not used for range jumps.
-		-- 0: default
-		-- 1: when pos == "end" and pos < currentrposition
-		offset = nil, ---@type number
-	},
-	label = {
-		-- allow uppercase labels
-		uppercase = true,
-		-- add any labels with the correct case here, that you want to exclude
-		exclude = "",
-		-- add a label for the first match in the current window.
-		-- you can always jump to the first match with `<CR>`
-		current = true,
-		-- show the label after the match
-		after = true, ---@type boolean|number[]
-		-- show the label before the match
-		before = false, ---@type boolean|number[]
-		-- position of the label extmark
-		style = "overlay", ---@type "eol" | "overlay" | "right_align" | "inline"
-		-- flash tries to re-use labels that were already assigned to a position,
-		-- when typing more characters. By default only lower-case labels are re-used.
-		reuse = "lowercase", ---@type "lowercase" | "all" | "none"
-		-- for the current window, label targets closer to the cursor first
-		distance = true,
-		-- minimum pattern length to show labels
-		-- Ignored for custom labelers.
-		min_pattern_length = 0,
-		-- Enable this to use rainbow colors to highlight labels
-		-- Can be useful for visualizing Treesitter ranges.
-		rainbow = {
-			enabled = false,
-			-- number between 1 and 9
-			shade = 1,
+		win = {
+			height = 12,
+			hidestatusline = false, -- works best with laststatus=3
 		},
-		-- With `format`, you can change how the label is rendered.
-		-- Should return a list of `[text, highlight]` tuples.
-		---@class Flash.Format
-		---@field state Flash.State
-		---@field match Flash.Match
-		---@field hl_group string
-		---@field after boolean
-		---@type fun(opts:Flash.Format): string[][]
-		format = function(opts)
-			return { { opts.match.label, opts.hl_group } }
-		end,
-	},
-	highlight = {
-		-- show a backdrop with hl FlashBackdrop
-		backdrop = true,
-		-- Highlight the search matches
-		matches = true,
-		-- extmark priority
-		priority = 5000,
-		groups = {
-			match = "FlashMatch",
-			current = "FlashCurrent",
-			backdrop = "FlashBackdrop",
-			label = "FlashLabel",
+		-- NOTE: if you override the mappings, make sure to provide keys for all actions
+		mappings = {
+			["<down>"] = "down",
+			["<up>"] = "up",
+			["<cr>"] = "accept",
+			["<esc>"] = "cancel",
+			["<tag>"] = "mark",
+			["<c-g>"] = "togglelive",
+			["<c-l>"] = "togglepreview",
+			["<c-q>"] = "setqflist",
+			["<m-q>"] = "setqflistmark",
 		},
-	},
-	-- action to perform when picking a label.
-	-- defaults to the jumping logic depending on the mode.
-	---@type fun(match:Flash.Match, state:Flash.State)|nil
-	action = nil,
-	-- initial pattern to use when opening flash
-	pattern = "",
-	-- When `true`, flash will try to continue the last search
-	continue = false,
-	-- Set config to a function to dynamically change the config
-	config = nil, ---@type fun(opts:Flash.Config)|nil
-	-- You can override the default options for a specific mode.
-	-- Use it with `require("flash").jump({mode = "forward"})`
-	---@type table<string, Flash.Config>
-	modes = {
-		-- options used when flash is activated through
-		-- a regular search with `/` or `?`
+	})
+
+	-- override built-in ui select with artio
+	vim.ui.select = require("artio").select
+
+	vim.keymap.set("n", "<leader><leader>", "<Plug>(artio-files)")
+	vim.keymap.set("n", "<leader>sg", "<Plug>(artio-grep)")
+
+	-- general built-in pickers
+	vim.keymap.set("n", "<leader>sh", "<Plug>(artio-helptags)")
+	vim.keymap.set("n", "<leader>sb", "<Plug>(artio-buffers)")
+	vim.keymap.set("n", "<leader>/", "<Plug>(artio-buffergrep)")
+
+	vim.keymap.set("n", "<leader>sz", "<Plug>(artio-oldfiles)")
+	vim.keymap.set("n", "<leader>s.", "<Plug>(artio-oldfiles)")
+
+	-- setup artio
+	vim.keymap.set("n", "<leader><leader>", function()
+		require("artio.builtins").files({ findprg = "rg --files$*" })
+	end)
+end
+
+do
+	vim.pack.add({ { src = "https://github.com/folke/flash.nvim" } })
+	require("flash").setup({
+		-- labels = "abcdefghijklmnopqrstuvwxyz",
+		labels = "asdfghjklqwertyuiopzxcvbnm",
 		search = {
-			-- when `true`, flash will be activated during regular search by default.
-			-- You can always toggle when searching with `require("flash").toggle()`
-			enabled = false,
-			highlight = { backdrop = false },
-			jump = { history = true, register = true, nohlsearch = true },
+			-- search/jump in all windows
+			multi_window = true,
+			-- search direction
+			forward = true,
+			-- when `false`, find only matches in the given direction
+			wrap = true,
+			---@type Flash.Pattern.Mode
+			-- Each mode will take ignorecase and smartcase into account.
+			-- * exact: exact match
+			-- * search: regular search
+			-- * fuzzy: fuzzy search
+			-- * fun(str): custom function that returns a pattern
+			--   For example, to only match at the beginning of a word:
+			--   mode = function(str)
+			--     return "\\<" .. str
+			--   end,
+			mode = "exact",
+			-- behave like `incsearch`
+			incremental = false,
+			-- Excluded filetypes and custom window filters
+			---@type (string|fun(win:window))[]
+			exclude = {
+				"notify",
+				"cmp_menu",
+				"noice",
+				"flash_prompt",
+				function(win)
+					-- exclude non-focusable windows
+					return not vim.api.nvim_win_get_config(win).focusable
+				end,
+			},
+			-- Optional trigger character that needs to be typed before
+			-- a jump label can be used. It's NOT recommended to set this,
+			-- unless you know what you're doing
+			trigger = "",
+			-- max pattern length. If the pattern length is equal to this
+			-- labels will no longer be skipped. When it exceeds this length
+			-- it will either end in a jump or terminate the search
+			max_length = false, ---@type number|false
+		},
+		jump = {
+			-- save location in the jumplist
+			jumplist = true,
+			-- jump position
+			pos = "start", ---@type "start" | "end" | "range"
+			-- add pattern to search history
+			history = false,
+			-- add pattern to search register
+			register = true,
+			-- clear highlight after jump
+			nohlsearch = false,
+			-- automatically jump when there is only one match
+			autojump = false,
+			-- You can force inclusive/exclusive jumps by setting the
+			-- `inclusive` option. By default it will be automatically
+			-- set based on the mode.
+			inclusive = nil, ---@type boolean?
+			-- jump position offset. Not used for range jumps.
+			-- 0: default
+			-- 1: when pos == "end" and pos < currentrposition
+			offset = nil, ---@type number
+		},
+		label = {
+			-- allow uppercase labels
+			uppercase = false,
+			-- add any labels with the correct case here, that you want to exclude
+			exclude = "",
+			-- add a label for the first match in the current window.
+			-- you can always jump to the first match with `<CR>`
+			current = true,
+			-- show the label after the match
+			after = true, ---@type boolean|number[]
+			-- show the label before the match
+			before = false, ---@type boolean|number[]
+			-- position of the label extmark
+			style = "overlay", ---@type "eol" | "overlay" | "right_align" | "inline"
+			-- flash tries to re-use labels that were already assigned to a position,
+			-- when typing more characters. By default only lower-case labels are re-used.
+			reuse = "lowercase", ---@type "lowercase" | "all" | "none"
+			-- for the current window, label targets closer to the cursor first
+			distance = true,
+			-- minimum pattern length to show labels
+			-- Ignored for custom labelers.
+			min_pattern_length = 0,
+			-- Enable this to use rainbow colors to highlight labels
+			-- Can be useful for visualizing Treesitter ranges.
+			rainbow = {
+				enabled = false,
+				-- number between 1 and 9
+				shade = 1,
+			},
+			-- With `format`, you can change how the label is rendered.
+			-- Should return a list of `[text, highlight]` tuples.
+			---@class Flash.Format
+			---@field state Flash.State
+			---@field match Flash.Match
+			---@field hl_group string
+			---@field after boolean
+			---@type fun(opts:Flash.Format): string[][]
+			format = function(opts)
+				return { { opts.match.label, opts.hl_group } }
+			end,
+		},
+		highlight = {
+			-- show a backdrop with hl FlashBackdrop
+			backdrop = true,
+			-- Highlight the search matches
+			matches = true,
+			-- extmark priority
+			priority = 5000,
+			groups = {
+				match = "FlashMatch",
+				current = "FlashCurrent",
+				backdrop = "FlashBackdrop",
+				label = "FlashLabel",
+			},
+		},
+		-- action to perform when picking a label.
+		-- defaults to the jumping logic depending on the mode.
+		---@type fun(match:Flash.Match, state:Flash.State)|nil
+		action = nil,
+		-- initial pattern to use when opening flash
+		pattern = "",
+		-- When `true`, flash will try to continue the last search
+		continue = false,
+		-- Set config to a function to dynamically change the config
+		config = nil, ---@type fun(opts:Flash.Config)|nil
+		-- You can override the default options for a specific mode.
+		-- Use it with `require("flash").jump({mode = "forward"})`
+		---@type table<string, Flash.Config>
+		modes = {
+			-- options used when flash is activated through
+			-- a regular search with `/` or `?`
 			search = {
-				-- `forward` will be automatically set to the search direction
-				-- `mode` is always set to `search`
-				-- `incremental` is set to `true` when `incsearch` is enabled
+				-- when `true`, flash will be activated during regular search by default.
+				-- You can always toggle when searching with `require("flash").toggle()`
+				enabled = true,
+				highlight = { backdrop = false },
+				jump = { history = true, register = true, nohlsearch = true },
+				search = {
+					-- `forward` will be automatically set to the search direction
+					-- `mode` is always set to `search`
+					-- `incremental` is set to `true` when `incsearch` is enabled
+				},
+			},
+			-- options used when flash is activated through
+			-- `f`, `F`, `t`, `T`, `;` and `,` motions
+			char = {
+				enabled = true,
+				-- dynamic configuration for ftFT motions
+				config = function(opts)
+					-- autohide flash when in operator-pending mode
+					opts.autohide = opts.autohide or (vim.fn.mode(true):find("no") and vim.v.operator == "y")
+
+					-- disable jump labels when not enabled, when using a count,
+					-- or when recording/executing registers
+					opts.jump_labels = opts.jump_labels
+						and vim.v.count == 0
+						and vim.fn.reg_executing() == ""
+						and vim.fn.reg_recording() == ""
+
+					-- Show jump labels only in operator-pending mode
+					-- opts.jump_labels = vim.v.count == 0 and vim.fn.mode(true):find("o")
+				end,
+				-- hide after jump when not using jump labels
+				autohide = false,
+				-- show jump labels
+				jump_labels = false,
+				-- set to `false` to use the current line only
+				multi_line = true,
+				-- When using jump labels, don't use these keys
+				-- This allows using those keys directly after the motion
+				label = { exclude = "hjkliardc" },
+				-- by default all keymaps are enabled, but you can disable some of them,
+				-- by removing them from the list.
+				-- If you rather use another key, you can map them
+				-- to something else, e.g., { [";"] = "L", [","] = H }
+				keys = { "f", "F", "t", "T", ";", "," },
+				---@alias Flash.CharActions table<string, "next" | "prev" | "right" | "left">
+				-- The direction for `prev` and `next` is determined by the motion.
+				-- `left` and `right` are always left and right.
+				char_actions = function(motion)
+					return {
+						[";"] = "next", -- set to `right` to always go right
+						[","] = "prev", -- set to `left` to always go left
+						-- clever-f style
+						[motion:lower()] = "next",
+						[motion:upper()] = "prev",
+						-- jump2d style: same case goes next, opposite case goes prev
+						-- [motion] = "next",
+						-- [motion:match("%l") and motion:upper() or motion:lower()] = "prev",
+					}
+				end,
+				search = { wrap = false },
+				highlight = { backdrop = true },
+				jump = {
+					register = false,
+					-- when using jump labels, set to 'true' to automatically jump
+					-- or execute a motion when there is only one match
+					autojump = false,
+				},
+			},
+			-- options used for treesitter selections
+			-- `require("flash").treesitter()`
+			treesitter = {
+				labels = "abcdefghijklmnopqrstuvwxyz",
+				jump = { pos = "range", autojump = true },
+				search = { incremental = false },
+				label = { before = true, after = true, style = "inline" },
+				highlight = {
+					backdrop = false,
+					matches = false,
+				},
+			},
+			treesitter_search = {
+				jump = { pos = "range" },
+				search = { multi_window = true, wrap = true, incremental = false },
+				remote_op = { restore = true },
+				label = { before = true, after = true, style = "inline" },
+			},
+			-- options used for remote flash
+			remote = {
+				remote_op = { restore = true, motion = true },
 			},
 		},
-		-- options used when flash is activated through
-		-- `f`, `F`, `t`, `T`, `;` and `,` motions
-		char = {
+		-- options for the floating window that shows the prompt,
+		-- for regular jumps
+		-- `require("flash").prompt()` is always available to get the prompt text
+		prompt = {
 			enabled = true,
-			-- dynamic configuration for ftFT motions
-			config = function(opts)
-				-- autohide flash when in operator-pending mode
-				opts.autohide = opts.autohide or (vim.fn.mode(true):find("no") and vim.v.operator == "y")
-
-				-- disable jump labels when not enabled, when using a count,
-				-- or when recording/executing registers
-				opts.jump_labels = opts.jump_labels
-					and vim.v.count == 0
-					and vim.fn.reg_executing() == ""
-					and vim.fn.reg_recording() == ""
-
-				-- Show jump labels only in operator-pending mode
-				-- opts.jump_labels = vim.v.count == 0 and vim.fn.mode(true):find("o")
-			end,
-			-- hide after jump when not using jump labels
-			autohide = false,
-			-- show jump labels
-			jump_labels = false,
-			-- set to `false` to use the current line only
-			multi_line = true,
-			-- When using jump labels, don't use these keys
-			-- This allows using those keys directly after the motion
-			label = { exclude = "hjkliardc" },
-			-- by default all keymaps are enabled, but you can disable some of them,
-			-- by removing them from the list.
-			-- If you rather use another key, you can map them
-			-- to something else, e.g., { [";"] = "L", [","] = H }
-			keys = { "f", "F", "t", "T", ";", "," },
-			---@alias Flash.CharActions table<string, "next" | "prev" | "right" | "left">
-			-- The direction for `prev` and `next` is determined by the motion.
-			-- `left` and `right` are always left and right.
-			char_actions = function(motion)
-				return {
-					[";"] = "next", -- set to `right` to always go right
-					[","] = "prev", -- set to `left` to always go left
-					-- clever-f style
-					[motion:lower()] = "next",
-					[motion:upper()] = "prev",
-					-- jump2d style: same case goes next, opposite case goes prev
-					-- [motion] = "next",
-					-- [motion:match("%l") and motion:upper() or motion:lower()] = "prev",
-				}
-			end,
-			search = { wrap = false },
-			highlight = { backdrop = true },
-			jump = {
-				register = false,
-				-- when using jump labels, set to 'true' to automatically jump
-				-- or execute a motion when there is only one match
-				autojump = false,
+			prefix = { { "⚡", "FlashPromptIcon" } },
+			win_config = {
+				relative = "editor",
+				border = "none",
+				width = 1, -- when <=1 it's a percentage of the editor width
+				height = 1,
+				row = -1, -- when negative it's an offset from the bottom
+				col = 0, -- when negative it's an offset from the right
+				zindex = 1000,
 			},
 		},
-		-- options used for treesitter selections
-		-- `require("flash").treesitter()`
-		treesitter = {
-			labels = "abcdefghijklmnopqrstuvwxyz",
-			jump = { pos = "range", autojump = true },
-			search = { incremental = false },
-			label = { before = true, after = true, style = "inline" },
-			highlight = {
-				backdrop = false,
-				matches = false,
-			},
+		-- options for remote operator pending mode
+		remote_op = {
+			-- restore window views and cursor position
+			-- after doing a remote operation
+			restore = false,
+			-- For `jump.pos = "range"`, this setting is ignored.
+			-- `true`: always enter a new motion when doing a remote operation
+			-- `false`: use the windows cursor position and jump target
+			-- `nil`: act as `true` for remote windows, `false` for the current window
+			motion = false,
 		},
-		treesitter_search = {
-			jump = { pos = "range" },
-			search = { multi_window = true, wrap = true, incremental = false },
-			remote_op = { restore = true },
-			label = { before = true, after = true, style = "inline" },
-		},
-		-- options used for remote flash
-		remote = {
-			remote_op = { restore = true, motion = true },
-		},
-	},
-	-- options for the floating window that shows the prompt,
-	-- for regular jumps
-	-- `require("flash").prompt()` is always available to get the prompt text
-	prompt = {
-		enabled = true,
-		prefix = { { "⚡", "FlashPromptIcon" } },
-		win_config = {
-			relative = "editor",
-			border = "none",
-			width = 1, -- when <=1 it's a percentage of the editor width
-			height = 1,
-			row = -1, -- when negative it's an offset from the bottom
-			col = 0, -- when negative it's an offset from the right
-			zindex = 1000,
-		},
-	},
-	-- options for remote operator pending mode
-	remote_op = {
-		-- restore window views and cursor position
-		-- after doing a remote operation
-		restore = false,
-		-- For `jump.pos = "range"`, this setting is ignored.
-		-- `true`: always enter a new motion when doing a remote operation
-		-- `false`: use the window's cursor position and jump target
-		-- `nil`: act as `true` for remote windows, `false` for the current window
-		motion = false,
-	},
-})
-vim.keymap.set("n", "s", function()
-	require("flash").jump()
-end)
-vim.keymap.set("n", "S", function()
-	require("flash").treesitter()
-end)
-
+	})
+	vim.keymap.set("n", "s", function()
+		require("flash").jump()
+	end)
+	vim.keymap.set("n", "S", function()
+		require("flash").treesitter()
+	end)
+end
 --setup treesitter
 local ts_parsers = {
 	"bash",
@@ -430,63 +480,73 @@ vim.keymap.set("n", "<leader>f", function()
 	require("conform").format({ async = true, lsp_format = "fallback" })
 end)
 
-require("mini.ai").setup({ n_lines = 500 })
-
-local fzf_lua = require("fzf-lua")
-fzf_lua.setup({
-	{ "max-perf", "skim" },
-	winopts = {
-		row = 1,
-		col = 0,
-		width = 1,
-		height = 1,
-		-- uncomment to supress cmdline
-		zindex = 200,
-		title_pos = "left",
-		toggle_behavior = "extend",
-		border = function(_, m)
-			assert(m.type == "nvim" and m.name == "fzf")
-			-- { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
-			local b = { "", "", "", "", "", "", "", "" }
-			if m.layout == "down" then
-				-- b[2] = "─"
-				b[6] = "─"
-			elseif m.layout == "up" then
-				b[2] = "─"
-			elseif m.layout == "left" then
-				b[8] = "│"
-			else -- right
-				b[4] = "│"
-			end
-			return b
-		end,
-		preview = {
-			layout = "vertical",
-			vertical = "up:60%",
-			-- title_pos = "right",
-			winopts = { signcolumn = "yes" },
-			border = function(_, m)
-				if m.type == "fzf" then
-					return "border-line"
-				else
-					if m.layout == "down" then
-						-- uncomment for preview title
-						-- return { "", "─", "", "", "", "", "", "" }
-						return { "", "", "", "", "", "", "", "" }
-					else
-						return "none"
-					end
-				end
-			end,
-		},
-	},
-})
-vim.keymap.set("n", "<leader><leader>", fzf_lua.files)
-vim.keymap.set("n", "<leader>sg", fzf_lua.live_grep)
-vim.keymap.set("n", "<leader>so", fzf_lua.oldfiles)
-vim.keymap.set("n", "<leader>/", fzf_lua.grep_curbuf)
+do
+	vim.pack.add({ "https://github.com/nvim-mini/mini.nvim" })
+	require("mini.ai").setup({ n_lines = 500 })
+	-- require("mini.surround").setup({})
+end
+-- do
+-- 	vim.pack.add({ { src = "https://github.com/ibhagwan/fzf-lua" } })
+-- 	local fzf_lua = require("fzf-lua")
+-- 	fzf_lua.setup({
+-- 		{ "max-perf" },
+-- 		winopts = {
+-- 			row = 1,
+-- 			col = 0,
+-- 			width = 1,
+-- 			height = 1,
+-- 			-- uncomment to supress cmdline
+-- 			zindex = 200,
+-- 			title_pos = "left",
+-- 			toggle_behavior = "extend",
+-- 			border = function(_, m)
+-- 				assert(m.type == "nvim" and m.name == "fzf")
+-- 				-- { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+-- 				local b = { "", "", "", "", "", "", "", "" }
+-- 				if m.layout == "down" then
+-- 					-- b[2] = "─"
+-- 					b[6] = "─"
+-- 				elseif m.layout == "up" then
+-- 					b[2] = "─"
+-- 				elseif m.layout == "left" then
+-- 					b[8] = "│"
+-- 				else -- right
+-- 					b[4] = "│"
+-- 				end
+-- 				return b
+-- 			end,
+-- 			preview = {
+-- 				layout = "vertical",
+-- 				vertical = "up:60%",
+-- 				-- title_pos = "right",
+-- 				winopts = { signcolumn = "yes" },
+-- 				border = function(_, m)
+-- 					if m.type == "fzf" then
+-- 						return "border-line"
+-- 					else
+-- 						if m.layout == "down" then
+-- 							-- uncomment for preview title
+-- 							-- return { "", "─", "", "", "", "", "", "" }
+-- 							return { "", "", "", "", "", "", "", "" }
+-- 						else
+-- 							return "none"
+-- 						end
+-- 					end
+-- 				end,
+-- 			},
+-- 		},
+-- 	})
+--
+-- 	vim.keymap.set("n", "<leader><leader>", fzf_lua.files)
+-- 	vim.keymap.set("n", "<leader>sf", fzf_lua.files)
+-- 	vim.keymap.set("n", "<leader>sg", fzf_lua.live_grep)
+-- 	vim.keymap.set("n", "<leader>so", fzf_lua.oldfiles)
+-- 	vim.keymap.set("n", "<leader>s/", fzf_lua.grep_curbuf)
+-- end
 
 require("mason").setup()
+
+require("blink.cmp").build():wait(60000)
 
 local capabilities = require("blink.cmp").get_lsp_capabilities()
 
@@ -541,27 +601,34 @@ load_oil()
 
 local function color_my_pencil()
 	vim.cmd([[
-       augroup transparentbackground
-       autocmd!
-       autocmd colorscheme * highlight normal ctermbg=none guibg=none
-       autocmd colorscheme * highlight nontext ctermbg=none guibg=none
-       augroup end
-     ]])
+	      augroup transparentbackground
+	      autocmd!
+	      autocmd colorscheme * highlight normal ctermbg=none guibg=none
+	      autocmd colorscheme * highlight nontext ctermbg=none guibg=none
+	      augroup end
+	    ]])
 
-	vim.cmd([[colorscheme catppuccin]])
+	vim.cmd([[colorscheme retrobox]])
 end
-
 color_my_pencil()
 
-local last_cursor_group = vim.api.nvim_create_augroup("lastcursorgroup", {})
-autocmd("bufreadpost", {
-	group = last_cursor_group,
-	callback = function()
-		local mark = vim.api.nvim_buf_get_mark(0, '"')
-		local lcount = vim.api.nvim_buf_line_count(0)
-		if mark[1] > 0 and mark[1] <= lcount then
-			pcall(vim.api.nvim_win_set_cursor, 0, mark)
-		end
+vim.api.nvim_create_autocmd("BufRead", {
+	callback = function(opts)
+		vim.api.nvim_create_autocmd("BufWinEnter", {
+			once = true,
+			buffer = opts.buf,
+			callback = function()
+				local ft = vim.bo[opts.buf].filetype
+				local last_known_line = vim.api.nvim_buf_get_mark(opts.buf, '"')[1]
+				if
+					not (ft:match("commit") and ft:match("rebase"))
+					and last_known_line > 1
+					and last_known_line <= vim.api.nvim_buf_line_count(opts.buf)
+				then
+					vim.api.nvim_feedkeys([[g`"]], "nx", false)
+				end
+			end,
+		})
 	end,
 })
 

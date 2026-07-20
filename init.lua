@@ -10,7 +10,7 @@ vim.loader.enable = true
 vim.g.have_nerd_font = false
 
 vim.o.number = true
-vim.o.relativenumber = false
+vim.o.relativenumber = true
 
 vim.o.mouse = "a"
 
@@ -39,6 +39,7 @@ vim.o.splitbelow = true
 
 vim.o.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+vim.opt.guicursor = ""
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -59,13 +60,17 @@ vim.keymap.set("n", "ZX", "ZQ")
 vim.keymap.set("n", "<leader>p", function()
 	vim.cmd([[Oil]])
 end)
-vim.keymap.set("n", "<c-d>", "<c-d>zz")
-vim.keymap.set("n", "<c-u>", "<c-u>zz")
+-- vim.keymap.set("n", "<c-d>", "<c-d>zz")
+-- vim.keymap.set("n", "<c-u>", "<c-u>zz")
 
-vim.keymap.set("n", "<pageup>", "<c-u>zz")
-vim.keymap.set("n", "<pagedown>", "<c-d>zz")
+vim.keymap.set("n", "<c-up>", "5k")
+vim.keymap.set("n", "<c-down>", "5j")
+
+vim.keymap.set("n", "<pageup>", "<c-u>")
+vim.keymap.set("n", "<pagedown>", "<c-d>")
 
 vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>")
+
 --
 -- vim.diagnostic.config({
 -- 	update_in_insert = false,
@@ -74,7 +79,7 @@ vim.keymap.set("n", "<esc>", "<cmd>nohlsearch<cr>")
 -- 	underline = { severity = vim.diagnostic.severity.error },
 --
 -- 	virtual_text = true, -- text shows up at the end of the line
--- 	virtual_lines = false, -- teest shows up underneath the line, with virtual lines
+-- 	virtual_lines = false, -- test shows up underneath the line, with virtual lines
 --
 -- 	jump = { float = true },
 -- })
@@ -94,61 +99,61 @@ vim.pack.add({
 	{ src = "https://github.com/mason-org/mason.nvim" },
 })
 
-do
-	vim.pack.add({ {
-		src = "https://codeberg.org/comfysage/artio.nvim",
-	} })
-
-	require("artio").setup({
-		opts = {
-			preselect = true, -- whether to preselect the first match
-			bottom = true, -- whether to draw the prompt at the bottom
-			shrink = true, -- whether the window should shrink to fit the matches
-			promptprefix = "", -- prefix for the prompt
-			prompt_title = true, -- whether to draw the prompt title
-			pointer = "", -- pointer for the selected match
-			marker = "│", -- prefix for marked items
-			infolist = { "list" }, -- index: [1] list: (4/5)
-			use_icons = false, -- requires mini.icons
-		},
-		win = {
-			height = 12,
-			hidestatusline = false, -- works best with laststatus=3
-		},
-		-- NOTE: if you override the mappings, make sure to provide keys for all actions
-		mappings = {
-			["<down>"] = "down",
-			["<up>"] = "up",
-			["<cr>"] = "accept",
-			["<esc>"] = "cancel",
-			["<tag>"] = "mark",
-			["<c-g>"] = "togglelive",
-			["<c-l>"] = "togglepreview",
-			["<c-q>"] = "setqflist",
-			["<m-q>"] = "setqflistmark",
-		},
-	})
-
-	-- override built-in ui select with artio
-	vim.ui.select = require("artio").select
-
-	vim.keymap.set("n", "<leader><leader>", "<Plug>(artio-files)")
-	vim.keymap.set("n", "<leader>sg", "<Plug>(artio-grep)")
-
-	-- general built-in pickers
-	vim.keymap.set("n", "<leader>sh", "<Plug>(artio-helptags)")
-	vim.keymap.set("n", "<leader>sb", "<Plug>(artio-buffers)")
-	vim.keymap.set("n", "<leader>/", "<Plug>(artio-buffergrep)")
-
-	vim.keymap.set("n", "<leader>sz", "<Plug>(artio-oldfiles)")
-	vim.keymap.set("n", "<leader>s.", "<Plug>(artio-oldfiles)")
-
-	-- setup artio
-	vim.keymap.set("n", "<leader><leader>", function()
-		require("artio.builtins").files({ findprg = "rg --files$*" })
-	end)
-end
-
+-- do
+-- 	vim.pack.add({ {
+-- 		src = "https://codeberg.org/comfysage/artio.nvim",
+-- 	} })
+--
+-- 	require("artio").setup({
+-- 		opts = {
+-- 			preselect = true, -- whether to preselect the first match
+-- 			bottom = true, -- whether to draw the prompt at the bottom
+-- 			shrink = true, -- whether the window should shrink to fit the matches
+-- 			promptprefix = "", -- prefix for the prompt
+-- 			prompt_title = true, -- whether to draw the prompt title
+-- 			pointer = "", -- pointer for the selected match
+-- 			marker = "│", -- prefix for marked items
+-- 			infolist = { "list" }, -- index: [1] list: (4/5)
+-- 			use_icons = false, -- requires mini.icons
+-- 		},
+-- 		win = {
+-- 			height = 12,
+-- 			hidestatusline = false, -- works best with laststatus=3
+-- 		},
+-- 		-- NOTE: if you override the mappings, make sure to provide keys for all actions
+-- 		mappings = {
+-- 			["<down>"] = "down",
+-- 			["<up>"] = "up",
+-- 			["<cr>"] = "accept",
+-- 			["<esc>"] = "cancel",
+-- 			["<tag>"] = "mark",
+-- 			["<c-g>"] = "togglelive",
+-- 			["<c-l>"] = "togglepreview",
+-- 			["<c-q>"] = "setqflist",
+-- 			["<m-q>"] = "setqflistmark",
+-- 		},
+-- 	})
+--
+-- 	-- override built-in ui select with artio
+-- 	vim.ui.select = require("artio").select
+--
+-- 	vim.keymap.set("n", "<leader><leader>", "<Plug>(artio-files)")
+-- 	vim.keymap.set("n", "<leader>sg", "<Plug>(artio-grep)")
+--
+-- 	-- general built-in pickers
+-- 	vim.keymap.set("n", "<leader>sh", "<Plug>(artio-helptags)")
+-- 	vim.keymap.set("n", "<leader>sb", "<Plug>(artio-buffers)")
+-- 	vim.keymap.set("n", "<leader>/", "<Plug>(artio-buffergrep)")
+--
+-- 	vim.keymap.set("n", "<leader>sz", "<Plug>(artio-oldfiles)")
+-- 	vim.keymap.set("n", "<leader>s.", "<Plug>(artio-oldfiles)")
+--
+-- 	-- setup artio
+-- 	vim.keymap.set("n", "<leader><leader>", function()
+-- 		require("artio.builtins").files({ findprg = "rg --files$*" })
+-- 	end)
+-- end
+--
 do
 	vim.pack.add({ { src = "https://github.com/folke/flash.nvim" } })
 	require("flash").setup({
@@ -291,7 +296,7 @@ do
 			search = {
 				-- when `true`, flash will be activated during regular search by default.
 				-- You can always toggle when searching with `require("flash").toggle()`
-				enabled = true,
+				enabled = false,
 				highlight = { backdrop = false },
 				jump = { history = true, register = true, nohlsearch = true },
 				search = {
@@ -479,64 +484,62 @@ do
 	require("mini.ai").setup({ n_lines = 500 })
 	-- require("mini.surround").setup({})
 end
--- do
--- 	vim.pack.add({ { src = "https://github.com/ibhagwan/fzf-lua" } })
--- 	local fzf_lua = require("fzf-lua")
--- 	fzf_lua.setup({
--- 		{ "max-perf" },
--- 		winopts = {
--- 			row = 1,
--- 			col = 0,
--- 			width = 1,
--- 			height = 1,
--- 			-- uncomment to supress cmdline
--- 			zindex = 200,
--- 			title_pos = "left",
--- 			toggle_behavior = "extend",
--- 			border = function(_, m)
--- 				assert(m.type == "nvim" and m.name == "fzf")
--- 				-- { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
--- 				local b = { "", "", "", "", "", "", "", "" }
--- 				if m.layout == "down" then
--- 					-- b[2] = "─"
--- 					b[6] = "─"
--- 				elseif m.layout == "up" then
--- 					b[2] = "─"
--- 				elseif m.layout == "left" then
--- 					b[8] = "│"
--- 				else -- right
--- 					b[4] = "│"
--- 				end
--- 				return b
--- 			end,
--- 			preview = {
--- 				layout = "vertical",
--- 				vertical = "up:60%",
--- 				-- title_pos = "right",
--- 				winopts = { signcolumn = "yes" },
--- 				border = function(_, m)
--- 					if m.type == "fzf" then
--- 						return "border-line"
--- 					else
--- 						if m.layout == "down" then
--- 							-- uncomment for preview title
--- 							-- return { "", "─", "", "", "", "", "", "" }
--- 							return { "", "", "", "", "", "", "", "" }
--- 						else
--- 							return "none"
--- 						end
--- 					end
--- 				end,
--- 			},
--- 		},
--- 	})
---
--- 	vim.keymap.set("n", "<leader><leader>", fzf_lua.files)
--- 	vim.keymap.set("n", "<leader>sf", fzf_lua.files)
--- 	vim.keymap.set("n", "<leader>sg", fzf_lua.live_grep)
--- 	vim.keymap.set("n", "<leader>so", fzf_lua.oldfiles)
--- 	vim.keymap.set("n", "<leader>s/", fzf_lua.grep_curbuf)
--- end
+
+do
+	vim.pack.add({ { src = "https://github.com/ibhagwan/fzf-lua" } })
+	local fzf_lua = require("fzf-lua")
+	fzf_lua.setup({
+		-- { "max-perf" },
+		-- fzf_opts = { ["--ansi"] = false },
+		files = {
+			git_icons = false,
+			file_icons = false,
+		},
+		winopts = {
+			row = 1,
+			col = 0,
+			width = 1,
+			height = 1,
+			-- uncomment to supress cmdline
+			backdrop = 100,
+			zindex = 200,
+			title_pos = "left",
+			toggle_behavior = "extend",
+			border = function(_, m)
+				assert(m.type == "nvim" and m.name == "fzf")
+				-- { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+				local b = { "", "", "", "", "", "", "", "" }
+				if m.layout == "down" then
+					-- b[2] = "─"
+					b[6] = ""
+				elseif m.layout == "up" then
+					b[2] = ""
+				elseif m.layout == "left" then
+					b[8] = ""
+				else -- right
+					b[4] = ""
+				end
+				return b
+			end,
+			preview = {
+				hidden = true,
+				default = "bat_native",
+				layout = "vertical",
+				vertical = "up:80%",
+			},
+		},
+	})
+
+	vim.keymap.set("n", "<leader><leader>", fzf_lua.files)
+	vim.keymap.set("n", "<leader>ff", fzf_lua.files)
+	vim.keymap.set("n", "<leader>fg", fzf_lua.live_grep)
+	vim.keymap.set("n", "<leader>fr", fzf_lua.oldfiles)
+	vim.keymap.set("n", "<leader>f.", fzf_lua.oldfiles)
+	vim.keymap.set("n", "<leader>/", fzf_lua.grep_curbuf)
+
+	vim.keymap.set("n", "<leader>sr", fzf_lua.marks)
+	vim.keymap.set("n", "<leader>sj", fzf_lua.jumps)
+end
 
 do
 	vim.pack.add({
@@ -602,10 +605,36 @@ do
 end
 
 do
+	vim.pack.add({
+		-- { src = "https://codeberg.org/evergarden/nvim.git", name = "evergarden" },
+		{ src = "https://github.com/phha/zenburn.nvim" },
+		-- { src = "https://github.com/blazkowolf/gruber-darker.nvim" },
+		-- { src = "https://github.com/cranberry-clockworks/coal.nvim" },
+	})
+	require("zenburn").setup()
+	-- require("gruber-darker").setup()
+	-- require("evergarden").setup({
+	-- 	theme = {
+	-- 		variant = "fall", -- 'winter'|'fall'|'spring'|'summer'
+	-- 		accent = "green",
+	-- 	},
+	-- 	editor = {
+	-- 		transparent_background = false,
+	-- 		sign = { color = "none" },
+	-- 		float = {
+	-- 			color = "mantle",
+	-- 			solid_border = false,
+	-- 		},
+	-- 		completion = {
+	-- 			color = "surface0",
+	-- 		},
+	-- 	},
+	-- })
 	vim.cmd([[
 	      augroup transparentbackground
 	      autocmd!
 	      autocmd colorscheme * highlight normal ctermbg=none guibg=none
+	      autocmd colorscheme * highlight normalnc ctermbg=none guibg=none
 	      autocmd colorscheme * highlight nontext ctermbg=none guibg=none
 	      augroup end
 	    ]])
@@ -633,17 +662,17 @@ vim.api.nvim_create_autocmd("BufRead", {
 	end,
 })
 
-autocmd("cursormoved", {
-	group = vim.api.nvim_create_augroup("auto-hlsearch", { clear = true }),
-	callback = function()
-		if vim.v.hlsearch == 1 and vim.fn.searchcount().exact_match == 0 then
-			vim.schedule(function()
-				vim.cmd.nohlsearch()
-			end)
-		end
-	end,
-})
-
+-- autocmd("cursormoved", {
+-- 	group = vim.api.nvim_create_augroup("auto-hlsearch", { clear = true }),
+-- 	callback = function()
+-- 		if vim.v.hlsearch == 1 and vim.fn.searchcount().exact_match == 0 then
+-- 			vim.schedule(function()
+-- 				vim.cmd.nohlsearch()
+-- 			end)
+-- 		end
+-- 	end,
+-- })
+--
 autocmd("textyankpost", {
 	desc = "highlight when yanking (copying) text",
 	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
